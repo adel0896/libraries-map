@@ -14,7 +14,7 @@ function App() {
   return (
     <div className="App">
       <h1>Find the location of the libraries situated around Copenhagen Municipality</h1>
-      <MyMap token={mapboxgl} />
+      <MyMap />
     </div>
   );
 }
