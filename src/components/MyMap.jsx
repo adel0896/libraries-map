@@ -1,31 +1,14 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import Map, { GeolocateControl, Marker, NavigationControl, FullscreenControl, ScaleControl, Layer } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { render } from "react-dom";
 import styles from "./css-modules/myMap.module.css";
 import Button from "./Button";
-
 import Pin from "./Pin";
 import axios from "axios";
 
 function MyMap() {
   const [geojson, setGeoJson] = useState(null);
-  const pinRef = useRef();
   const mapRef = useRef();
-
-  const valbyLayer = {
-    id: "places",
-    type: "symbol",
-    source: {
-      type: "geojson",
-      data: geojson,
-    },
-    layout: {
-      "icon-image": "bar-15",
-      "icon-size": 1.25,
-      "icon-allow-overlap": true,
-    },
-  };
 
   useEffect(() => {
     axios.get("https://wfs-kbhkort.kk.dk/k101/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=k101:biblioteker&outputFormat=json&SRSNAME=EPSG:4326").then((response) => {
@@ -34,7 +17,6 @@ function MyMap() {
   }, []);
   const pinsArray = [];
   if (geojson !== null) {
-    console.log("notnull");
     const pins = geojson.features.map((location, index) => (
       <Marker key={`marker-${index}`} longitude={location.geometry.coordinates[0][0]} latitude={location.geometry.coordinates[0][1]} anchor="bottom">
         <Pin />
@@ -50,15 +32,12 @@ function MyMap() {
   const [location, setLocation] = useState("");
 
   function handleMove() {
-    console.log("moving");
     if (!mapRef.current) return;
-
     setLng(mapRef.current.getCenter().lng.toFixed(4));
     setLat(mapRef.current.getCenter().lat.toFixed(4));
     setZoom(mapRef.current.getZoom().toFixed(2));
   }
   function changeLocation(event) {
-    console.log("clicked");
     setLocation(event.currentTarget.value);
   }
 
@@ -104,8 +83,6 @@ function MyMap() {
       </div>
 
       <Map
-        // style="bright-v8"
-        // onLoad={addSomeLayer}
         ref={mapRef}
         onMove={handleMove}
         initialViewState={{
@@ -122,7 +99,6 @@ function MyMap() {
         <NavigationControl position="top-left" />
         <ScaleControl />
         {pinsArray}
-        <Layer {...valbyLayer} />
       </Map>
     </div>
   );
