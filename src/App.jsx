@@ -1,7 +1,7 @@
 // import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import React, { useRef, useEffect, useState } from "react";
-import Filters from "./components/Filters";
+// import Filters from "./components/Filters";
 import "./App.css";
 import MyMap from "./components/MyMap";
 import "mapbox-gl/dist/mapbox-gl.css";

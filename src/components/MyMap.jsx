@@ -3,66 +3,13 @@ import Map, { GeolocateControl, Marker, NavigationControl, FullscreenControl, Sc
 import "mapbox-gl/dist/mapbox-gl.css";
 import { render } from "react-dom";
 import styles from "./css-modules/myMap.module.css";
-import Filters from "./Filters";
+import Button from "./Button";
+
 import Pin from "./Pin";
 import axios from "axios";
 function MyMap() {
-  //   const geojson = {
-  //     type: "FeatureCollection",
-  //     features: [
-  //       {
-  //         type: "Feature",
-  //         geometry: {
-  //           type: "Point",
-  //           coordinates: [-77.032, 38.913],
-  //         },
-  //         properties: {
-  //           title: "Mapbox",
-  //           description: "Washington, D.C.",
-  //         },
-  //       },
-  //       {
-  //         type: "Feature",
-  //         geometry: {
-  //           type: "Point",
-  //           coordinates: [-122.414, 37.776],
-  //         },
-  //         properties: {
-  //           title: "Mapbox",
-  //           description: "San Francisco, California",
-  //         },
-  //       },
-  //     ],
-  //   };
-
-  //   second try
-  //   const getData = () => {
-  //     fetch("https://wfs-kbhkort.kk.dk/k101/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=k101:biblioteker&outputFormat=json&SRSNAME=EPSG:4326", {
-  //       method: "GET",
-  //       mode: "cors",
-  //       headers: {
-  //         "Access-Control-Expose-Headers": "Authorization,Access-Control-Allow-Origin,Access-Control-Allow-Credentials",
-  //         "Access-Control-Allow-Origin": "*",
-  //         "Content-Type": "application/json",
-  //         Accept: "application/json",
-  //       },
-  //     })
-  //       .then(function (response) {
-  //         console.log(response);
-  //         return response.json();
-  //       })
-  //       .then(function (myJson) {
-  //         console.log(myJson);
-  //       });
-  //   };
-  //   useEffect(() => {
-  //     getData();
-  //   }, []);
-
-  //   third try
-
   const [geojson, setGeoJson] = useState(null);
-  //   const [pins, setPins] = useState("");
+  const mapRef = useRef();
 
   useEffect(() => {
     axios.get("https://wfs-kbhkort.kk.dk/k101/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=k101:biblioteker&outputFormat=json&SRSNAME=EPSG:4326").then((response) => {
@@ -84,20 +31,50 @@ function MyMap() {
   const [lng, setLng] = useState(12.568337);
   const [lat, setLat] = useState(55.676098);
   const [zoom, setZoom] = useState(10);
+  const [location, setLocation] = useState("");
 
-  // add markers to map
+  function handleMove() {
+    console.log("moving");
+    if (!mapRef.current) return;
+    setLng(mapRef.current.getCenter().lng.toFixed(4));
+    setLat(mapRef.current.getCenter().lat.toFixed(4));
+    setZoom(mapRef.current.getZoom().toFixed(2));
+  }
+  function changeLocation(event) {
+    console.log("clicked");
+    setLocation(event.currentTarget.value);
+  }
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (location === "Frederiksberg") {
+      mapRef.current.flyTo({
+        center: [12.5359, 55.6774],
+        essential: true,
+        zoom: 13, // this animation is considered essential with respect to prefers-reduced-motion
+      });
+    } else if (location === "Copenhagen K") {
+    }
+  }, [location]);
 
   return (
     <div>
-      <Filters />
+      <div className={styles.container}>
+        <Button text={"All"} />
+        <Button text={"Frederiksberg"} onClick={changeLocation} value="Frederiksberg" />
+        <Button text={"Copenhagen K"} />
+        <Button text={"Vanlose"} />
+      </div>
       <div className={styles.sidebar}>
         Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
       </div>
 
       <Map
+        ref={mapRef}
+        onMove={handleMove}
         initialViewState={{
-          longitude: lng,
-          latitude: lat,
+          longitude: 12.568337,
+          latitude: 55.676098,
           zoom: zoom,
         }}
         style={{ width: 800, height: 500 }}
